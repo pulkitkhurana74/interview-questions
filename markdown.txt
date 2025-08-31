@@ -1,0 +1,39 @@
+In build.yml:-
+
+
+1.) In build job, the step:
+    - name: Build package
+    Is empty — it does not have a run: or uses: directive.
+    Because of this, nothing is actually building your Python package, so the dist/ folder will be missing, and the Upload artifact step will fail with no files found.
+    We need to run the package build command.
+
+2.) We have defined an output (artifact_name) but never set it in any step.
+    For outputs to work, we must explicitly set them with:
+    echo "artifact_name=python-package" >> $GITHUB_OUTPUT
+
+3.) Artifact upload will fail:-
+    Since our Build step does nothing, the dist/ folder won’t exist → this step will throw an error.
+
+
+ In promote_package.yml
+
+4.) We have Swapped repo names in env:-
+    CLOUDSMITH_STAGING_REPO: 'production'
+    CLOUDSMITH_PRODUCTION_REPO: 'staging'
+
+
+    We are searching in production and promoting to staging — which is the opposite
+
+5.) permissions are incomplete:-
+    OIDC requires contents: read too i.e., to fetch workflow context and verify.
+
+6.) JQ is may not preinstalled in ubuntu-latest box, so we need to add one step before to add jq package.
+
+In release_package.yml:-
+
+7.) branches: under workflow_run is invalid
+
+8.) cloudsmith cli is not installed and we are using cloudsmith command.
+
+    I
+
