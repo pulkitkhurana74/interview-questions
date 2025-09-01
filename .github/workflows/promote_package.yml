@@ -31,6 +31,11 @@ jobs:
           oidc-service-slug: ${{ env.CLOUDSMITH_SERVICE_SLUG }}
           api-key: ${{ secrets.CLOUDSMITH_SERVICE_SLUG }}
 
+      - name: Test Cloudsmith OIDC Auth
+        run: |
+          cloudsmith whoami
+
+
       - name: Get package identifier and promote
         run: |
           # Query for the package and get its identifier
