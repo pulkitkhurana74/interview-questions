@@ -28,7 +28,7 @@ jobs:
         uses: cloudsmith-io/cloudsmith-cli-action@master
         with:
           oidc-namespace: ${{ env.CLOUDSMITH_NAMESPACE }}
-          oidc-service-slug: ${{ env.CLOUDSMITH_SERVICE_SLUG }}
+          oidc-service-slug: ${{ secrets.CLOUDSMITH_SERVICE_SLUG }}
 
       - name: Get package identifier and promote
         run: |
