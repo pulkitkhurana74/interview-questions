@@ -25,7 +25,7 @@ jobs:
 
     steps:
       - name: Install Cloudsmith CLI
-        uses: cloudsmith-io/cloudsmith-cli-action@v1.0.3
+        uses: cloudsmith-io/cloudsmith-cli-action@master
         with:
           oidc-namespace: ${{ env.CLOUDSMITH_NAMESPACE }}
           oidc-service-slug: ${{ env.CLOUDSMITH_SERVICE_SLUG }}
