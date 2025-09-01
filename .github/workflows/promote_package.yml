@@ -30,10 +30,10 @@ jobs:
           oidc-namespace: ${{ env.CLOUDSMITH_NAMESPACE }}
           oidc-service-slug: ${{ env.CLOUDSMITH_SERVICE_SLUG }}
 
-      - name: Test Cloudsmith OIDC Auth
+      - name: Install jq tool
         run: |
-          cloudsmith whoami
-
+          sudo apt-get update
+          sudo apt-get install jq
 
       - name: Get package identifier and promote
         run: |
