@@ -31,9 +31,7 @@ In build.yml:-
 
 In release_package.yml:-
 
-7.) branches: under workflow_run is invalid
-
-8.) cloudsmith cli is not installed and we are using cloudsmith command.
+7.) cloudsmith cli is not installed and we are using cloudsmith command.
 
     I
 
