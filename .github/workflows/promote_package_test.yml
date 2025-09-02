@@ -29,7 +29,7 @@ jobs:
 
       - name: Tag package as ready-for-production
         run: |
-          IDENTIFIER="${{ github.event.client_payload.package_identifier }}:${{ github.event.client_payload.package_version }}.tar.gz"
+          IDENTIFIER="${{ github.event.client_payload.package_identifier }}-${{ github.event.client_payload.package_version }}.tar.gz"
           echo "Using package identifier: $IDENTIFIER"
 
           cloudsmith tag add \
@@ -39,7 +39,7 @@ jobs:
 
       - name: Promote package to production
         run: |
-          IDENTIFIER="${{ github.event.client_payload.package_identifier }}:${{ github.event.client_payload.package_version }}.tar.gz"
+          IDENTIFIER="${{ github.event.client_payload.package_identifier }}-${{ github.event.client_payload.package_version }}.tar.gz"
           echo "Promoting package: $IDENTIFIER"
 
           cloudsmith mv --yes \
