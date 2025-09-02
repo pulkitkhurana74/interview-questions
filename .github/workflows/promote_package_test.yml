@@ -1,0 +1,40 @@
+name: Promote Python Package
+
+on:
+  repository_dispatch:
+    types: [cloudsmith-package-synced]
+
+env:
+  CLOUDSMITH_NAMESPACE: ${{ vars.CLOUDSMITH_NAMESPACE }}
+  CLOUDSMITH_STAGING_REPO: "staging"
+  CLOUDSMITH_PRODUCTION_REPO: "production"
+  CLOUDSMITH_SERVICE_SLUG: ${{ vars.CLOUDSMITH_SERVICE_SLUG }}
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Cloudsmith CLI
+        uses: cloudsmith-io/cloudsmith-cli-action@master
+        with:
+          oidc-namespace: ${{ env.CLOUDSMITH_NAMESPACE }}
+          oidc-service-slug: ${{ env.CLOUDSMITH_SERVICE_SLUG }}
+
+      - name: Tag package with ready-for-production
+        run: |
+          IDENTIFIER="${{ github.event.client_payload.package_identifier }}"
+          cloudsmith tag add \
+            $CLOUDSMITH_NAMESPACE/$CLOUDSMITH_STAGING_REPO/$IDENTIFIER \
+            ready-for-production
+
+      - name: Promote tagged packages
+        run: |
+          PACKAGE_QUERY="tags:ready-for-production"
+          PACKAGE_DATA=$(cloudsmith list package $CLOUDSMITH_NAMESPACE/$CLOUDSMITH_STAGING_REPO -q "$PACKAGE_QUERY" -F json)
+
+          for ID in $(echo "$PACKAGE_DATA" | jq -r '.data[].identifier_perm'); do
+            cloudsmith mv --yes \
+              $CLOUDSMITH_NAMESPACE/$CLOUDSMITH_STAGING_REPO/$ID \
+              $CLOUDSMITH_PRODUCTION_REPO
+          done
+
