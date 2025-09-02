@@ -10,6 +10,12 @@ env:
   CLOUDSMITH_PRODUCTION_REPO: "production"
   CLOUDSMITH_SERVICE_SLUG: ${{ vars.CLOUDSMITH_SERVICE_SLUG }}
 
+permissions:
+  contents: read
+  actions: read
+  id-token: write
+
+
 jobs:
   promote:
     runs-on: ubuntu-latest
