@@ -1,4 +1,4 @@
-name: Promote Python Package
+name: Promote Python Package Webhook
 
 on:
   repository_dispatch:
