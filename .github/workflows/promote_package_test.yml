@@ -15,7 +15,6 @@ permissions:
   actions: read
   id-token: write
 
-
 jobs:
   promote:
     runs-on: ubuntu-latest
@@ -26,11 +25,28 @@ jobs:
           oidc-namespace: ${{ env.CLOUDSMITH_NAMESPACE }}
           oidc-service-slug: ${{ env.CLOUDSMITH_SERVICE_SLUG }}
 
+      - name: Query package identifier
+        id: query
+        run: |
+          PACKAGE_NAME="${{ github.event.client_payload.package_identifier }}"
+          PACKAGE_VERSION="${{ github.event.client_payload.package_version }}"
+          PACKAGE_QUERY="name:${PACKAGE_NAME} version:${PACKAGE_VERSION}"
+
+          echo "Searching for package with query: $PACKAGE_QUERY"
+
+          PACKAGE_DATA=$(cloudsmith list package ${{ env.CLOUDSMITH_NAMESPACE }}/${{ env.CLOUDSMITH_STAGING_REPO }} -q "$PACKAGE_QUERY" -F json)
+          IDENTIFIER=$(echo "$PACKAGE_DATA" | jq -r '.data[0].identifier_perm')
+
+          if [ -z "$IDENTIFIER" ] || [ "$IDENTIFIER" = "null" ]; then
+            echo "Failed to find package identifier"
+            exit 1
+          fi
+
+          echo "Found identifier: $IDENTIFIER"
+          echo "IDENTIFIER=$IDENTIFIER" >> $GITHUB_ENV
+
       - name: Tag package as ready-for-production
         run: |
-          IDENTIFIER="${{ github.event.client_payload.package_identifier }}-${{ github.event.client_payload.package_version }}.tar.gz"
-          echo "Using package identifier: $IDENTIFIER"
-
           cloudsmith tag add \
             ${{ env.CLOUDSMITH_NAMESPACE }}/${{ env.CLOUDSMITH_STAGING_REPO }}/$IDENTIFIER \
             ready-for-production
@@ -38,9 +54,6 @@ jobs:
 
       - name: Promote package to production
         run: |
-          IDENTIFIER="${{ github.event.client_payload.package_identifier }}-${{ github.event.client_payload.package_version }}.tar.gz"
-          echo "Promoting package: $IDENTIFIER"
-
           cloudsmith mv --yes \
             ${{ env.CLOUDSMITH_NAMESPACE }}/${{ env.CLOUDSMITH_STAGING_REPO }}/$IDENTIFIER \
             ${{ env.CLOUDSMITH_PRODUCTION_REPO }}
